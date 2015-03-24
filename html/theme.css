@@ -1,0 +1,12 @@
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.main-content > p {
+  margin: 5px 0;
+}
+
+.main-content .navbar .container {
+  width: auto;
+}

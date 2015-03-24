@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>City Weather</title>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <div class="page-header">
+    <h1 class="col-sm-offset-2">
+      <small>Weather Page</small>
+    </h1>
+  </div>
+  <div class="container" style="width: auto;">
+    <form class="form-horizontal col-sm-offset-2 col-sm-4" id="form">
+      <div class="form-group">
+        <label class="control-label">Enter a Utah City: </label>
+      </div>
+      <div class="form-group">
+        <input class="form-control" type="text" id="cityfield" value="">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-default">Submit</button>
+      </div>
+      <br>Suggestions: <span id="txtHint">Empty</span>
+    </form>
+    <div class="col-sm-4">
+      <h1>City</h1>
+      <textarea id="dispcity">No City</textarea>
+      <h1>Current Weather</h1>
+      <div id="weather">No weather</div>
+    </div>
+  </div>
+  <script>
+$("#cityfield").on('input', function () {
+  var url = "//52.10.174.196/REST/getcity?q=";
+  url += $("#cityfield").val();
+  $.getJSON(url,function(data) {
+    var everything = "<ul>";
+    $.each(data, function(i,item) {
+      everything += "<li> "+data[i].city+"</li>";
+    });
+    everything += "</ul>";
+    $("#txtHint").html(everything);
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    console.log('getJSON request failed! ' + textStatus); 
+    console.log("incoming "+jqXHR.responseText);
+  })
+  .done(function() {
+    console.log("done");
+  });
+});
+
+$("#form").submit(function(e) {
+  e.preventDefault();
+  var url = "https://api.wunderground.com/api/938b8a74f7b2cc0d/conditions/q/UT/";
+  url += $("#cityfield").val();
+  url += ".json";
+
+  $("#dispcity").val($("#cityfield").val());
+
+  $.ajax({
+    url : url,
+    dataType : "jsonp",
+    success : function(json) {
+      if(!json['response'].hasOwnProperty('error')){
+        var location = json['current_observation']['display_location']['city'];
+        var temp_string = json['current_observation']['temperature_string'];
+        var current_weather = json['current_observation']['weather'];
+        everything = "<ul>";
+        everything += "<li>Location: "+location;
+        everything += "<li>Temperature: "+temp_string;
+        everything += "<li>Weather: "+current_weather;
+        everything += "</ul>";
+        $("#weather").html(everything);
+      }
+      else
+        $("#weather").html("No Weather");
+    }
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    console.log('getJSON request failed! ' + textStatus); 
+    console.log("incoming "+jqXHR.responseText);
+  })
+  .done(function() {
+    console.log("done");
+  });
+});
+  </script>
+</body>
+</html>
+
